@@ -71,7 +71,7 @@ enum class AccessType(val value: String?) {
 }
 
 
-internal open class AuthRequest(val uri: URI, var clientID: String) {
+internal class AuthRequest(val uri: URI, var clientID: String) {
     var authResponseType: ResponseType? = null
     var state: String? = null
     var redirectURI: URI? = null
@@ -81,7 +81,7 @@ internal open class AuthRequest(val uri: URI, var clientID: String) {
     var requestCredentials: RequestCredentials = RequestCredentials.DEFAULT
     var scope: List<String>? = null
 
-    open val queryParameters: Sequence<Pair<String, String?>>
+    val queryParameters: Sequence<Pair<String, String?>>
         get() = sequenceOf(
                 "response_type" to authResponseType?.value,
                 "client_id" to clientID,
@@ -97,28 +97,33 @@ internal open class AuthRequest(val uri: URI, var clientID: String) {
                     AccessType.ONLINE
                 }.value
         )
-
-    fun Sequence<Pair<String, String?>>.mapNotNull(): Map<String, String> {
-        return mapNotNull {
-            it.second?.let { value -> it.first to value }
-        }.toMap()
-    }
 }
 
-internal open class TokenRequest(uri: URI, clientID: String, val clientSecret: String) : AuthRequest(uri, clientID) {
+internal class TokenRequest(val uri: URI, val clientID: String, val clientSecret: String) {
     var grantType: GrantType? = null
     var authTransport: ClientAuthTransport = ClientAuthTransport.HEADER
     var username: String? = null
     var password: String? = null
     var code: String? = null
     var refreshToken: String? = null
+    var redirectURI: URI? = null
+    var requestRefreshToken: Boolean = false
+    var scope: List<String>? = null
 
-    override val queryParameters: Sequence<Pair<String, String?>>
-        get() = super.queryParameters + sequenceOf(
+
+    val queryParameters: Sequence<Pair<String, String?>>
+        get() = sequenceOf(
                 "grant_type" to grantType?.value,
                 "username" to username,
                 "password" to password,
                 "code" to code,
+                "scope" to scope?.joinToString(" "),
+                "redirect_uri" to redirectURI?.toASCIIString(),
+                "access_type" to if (requestRefreshToken) {
+                    AccessType.OFFLINE
+                } else {
+                    AccessType.ONLINE
+                }.value,
                 "refresh_token" to refreshToken
         )
 

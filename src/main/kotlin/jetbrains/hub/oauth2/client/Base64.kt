@@ -20,12 +20,12 @@ object Base64 {
                 val b2 = bytes.getOrNull(base + 1)?.toInt()
                 val b3 = bytes.getOrNull(base + 2)?.toInt()
 
-                builder.append(PEM_ARRAY[(b1 ushr 2) and 63].toInt())
-                builder.append(PEM_ARRAY[((b1 shl 4) and 48) + ((b2 ?: 0) ushr 4 and 15)].toInt())
+                builder.append(PEM_ARRAY[(b1 ushr 2) and 63])
+                builder.append(PEM_ARRAY[((b1 shl 4) and 48) + ((b2 ?: 0) ushr 4 and 15)])
                 if (b2 != null) {
-                    builder.append(PEM_ARRAY[((b2 shl 2) and 60) + ((b3 ?: 0) ushr 6 and 3)].toInt())
+                    builder.append(PEM_ARRAY[((b2 shl 2) and 60) + ((b3 ?: 0) ushr 6 and 3)])
                     if (b3 != null) {
-                        builder.append(PEM_ARRAY[b3 and 63].toInt())
+                        builder.append(PEM_ARRAY[b3 and 63])
                     } else {
                         builder.append(FILL)
                     }
