@@ -14,8 +14,12 @@ fun DescribeBody.itShouldBeRefreshableTokenSource(
         clientID: String, clientSecret: String,
         getFlow: OAuth2Client.(ClientAuthTransport) -> TokenSource) {
 
-    it("should pass credentials as form parameters if required") {
+    it("should pass credentials as header parameters if required") {
         assertHeaderClientAuthSupported(clientID, clientSecret, getFlow)
+    }
+
+    it("should pass credentials as form parameters if required") {
+        assertFormClientAuthSupported(clientID, clientSecret, getFlow)
     }
 
     it("shouldn't access server unless token is requested") {
@@ -53,7 +57,26 @@ fun assertFlowIsCorrect(getFlow: OAuth2Client.(ClientAuthTransport) -> TokenSour
 }
 
 fun assertHeaderClientAuthSupported(clientID: String, clientSecret: String,
-                                    getFlow: OAuth2Client.(ClientAuthTransport) -> TokenSource) {
+                                  getFlow: OAuth2Client.(ClientAuthTransport) -> TokenSource) {
+    val tokenLoader = MockTokenLoader {
+        assertEquals("Basic ${Base64.encode("$clientID:$clientSecret".toByteArray())}", headers["Authorization"])
+        assertNull(formParameters)
+        TokenResponse.Success(
+                accessToken = "access-token",
+                refreshToken = null,
+                expiresIn = 3600,
+                requestTime = "2016-06-16 12:00:00".toCalendar(),
+                scope = listOf())
+    }
+    val client = OAuth2Client(tokenLoader)
+
+    val flow = client.getFlow(ClientAuthTransport.HEADER)
+
+    flow.accessToken
+}
+
+fun assertFormClientAuthSupported(clientID: String, clientSecret: String,
+                                  getFlow: OAuth2Client.(ClientAuthTransport) -> TokenSource) {
     val tokenLoader = MockTokenLoader {
         assertNull(headers["Authorization"])
         assertEquals(mapOf(

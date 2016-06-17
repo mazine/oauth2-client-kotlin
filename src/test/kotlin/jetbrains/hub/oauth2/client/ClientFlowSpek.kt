@@ -22,8 +22,6 @@ class ClientFlowSpek : Spek({
         it("should access server with valid request if token is requested") {
             assertFlowIsCorrect(getFlow) {
                 assertEquals("https://hub.jetbrains.com/api/rest/oauth2/token?grant_type=client_credentials&scope=0-0-0-0-0+$clientID", uri.toASCIIString())
-                assertEquals("Basic MTIzNC0zMjEzLTMxMjM6dG9wc2VjcmV0", headers["Authorization"])
-                assertNull(formParameters)
                 TokenResponse.Success(
                         accessToken = "access-token",
                         refreshToken = null,

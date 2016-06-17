@@ -6,7 +6,6 @@ import jetbrains.hub.oauth2.client.source.RefreshableTokenSource
 import org.jetbrains.spek.api.Spek
 import java.net.URI
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 class ResourceOwnerFlowSpek : Spek({
     describe("Resource Owner Flow") {
@@ -27,8 +26,6 @@ class ResourceOwnerFlowSpek : Spek({
                         "&username=user" +
                         "&password=secret" +
                         "&scope=0-0-0-0-0+$clientID", uri.toASCIIString())
-                assertEquals("Basic MTIzNC0zMjEzLTMxMjM6dG9wc2VjcmV0", headers["Authorization"])
-                assertNull(formParameters)
                 TokenResponse.Success(
                         accessToken = "access-token",
                         refreshToken = null,
