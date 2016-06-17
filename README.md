@@ -47,7 +47,7 @@ dependencies {
 
 ## Usage
 
-### Code Flow
+### Code Flow <a id="code-flow"></a>
 
 **Use it if**
 - Your application is running on a web server.
@@ -97,7 +97,7 @@ do {
 } while (!accessToken.isExpired)
 ```
 
-### Client Flow
+### Client Flow <a id="client-flow"></a>
 
 **Use it if**
 - Your application accesses resources on behalf of itself.
@@ -121,7 +121,7 @@ do {
 } while (true)
 ```
 
-### Resource Owner Flow
+### Resource Owner Flow <a id="resource-owner-flow"></a>
 
 **Use it if**
 
@@ -147,7 +147,7 @@ do {
 } while (true)
 ```
 
-### Implicit Flow
+### Implicit Flow <a id="implicit-flow"></a>
 
 **Use it if**
 
@@ -178,4 +178,65 @@ val targetURI = oauth2Client().implicitFlowURI(
         redirectURI = URI("https://localhost:8080/auth"),
         scope = listOf("0-0-0-0-0", clientID),
         state = "some-unique-state-id")
+```
+
+### Refresh Token <a id="refresh-token"></a>
+
+**Use it if**
+
+Your application is a desktop or mobile application that wants to access resources on behalf of user,
+when the user is offline.
+
+For further details check [OAuth 2.0 Spec](https://tools.ietf.org/html/rfc6749#section-4.1)
+or [Hub Docs](https://www.jetbrains.com/help/hub/2.0/Refresh-Token.html).
+
+Your application can obtain a `Refresh Token` as a part of [code](#code-flow) or [resource owner](#resource-owner-flow)
+flows.
+
+**Obtain `Refresh Token` from code flow**
+
+When redirect to OAuth 2.0 server, request refreshToken
+```
+oauth2Client().codeFlowURI(
+        authEndpoint = URI("https://hub.jetbrains.com/api/rest/oauth2/auth"),
+        clientID = "1234-3213-3123",
+        redirectURI = URI("https://localhost:8080/auth"),
+        scope = listOf("0-0-0-0-0", clientID),
+        state = "some-unique-state-id",
+        requestRefreshToken = true)
+```
+
+When user returns with a `code`, use the `code` to obtain refresh token
+```
+val refreshToken = oauth2Client().codeRefreshToken(
+        tokenEndpoint = URI("https://hub.jetbrains.com/api/rest/oauth2/token"),
+        code = "sOMec0de",
+        redirectURI = URI("https://localhost:8080/auth"),
+        clientID = "1234-3213-3123",
+        clientSecret = "sGUl4x")
+```
+
+**Obtain `Refresh Token` from resource owner flow**
+```
+val refreshToken = oauth2Client().resourceOwnerRefreshToken(
+        tokenEndpoint = URI("https://hub.jetbrains.com/api/rest/oauth2/token"),
+        username = "john.doe",
+        password = "p@$Sw0rd",
+        clientID = "1234-3213-3123",
+        clientSecret = "sGUl4x",
+        scope = listOf("0-0-0-0-0", clientID))
+```
+
+**Use `Refresh Token` to get `AccessTokenSource`**
+```
+val tokenSource = oauth2Client().refreshTokenFlow(
+        tokenEndpoint = URI("https://hub.jetbrains.com/api/rest/oauth2/token"),
+        refreshToken = "that-refresh-token",
+        clientID = "1234-3213-3123",
+        clientSecret = "sGUl4x",
+        scope = listOf("0-0-0-0-0", clientID))
+
+do {
+    // Make various calls using tokenSource.accessToken.header
+} while (true)
 ```
