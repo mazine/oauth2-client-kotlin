@@ -11,12 +11,11 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 
-fun DescribeBody.itShouldBeRefreshableTokenSource(
+fun DescribeBody.itShouldBeValidTokenSource(
         tokenEndpoint: URI,
         clientID: String, clientSecret: String,
         expectedFormParameters: Map<String, String>,
         getFlow: OAuth2Client.(ClientAuthTransport) -> TokenSource) {
-
     it("should parse access token correctly") {
         assertTokenIsParsedCorrectly(getFlow)
     }
@@ -40,7 +39,10 @@ fun DescribeBody.itShouldBeRefreshableTokenSource(
     it("shouldn't access server unless token is requested") {
         assertDoesntAccessServerUntilTokenIsRequested(getFlow)
     }
+}
 
+fun DescribeBody.itShouldBeRefreshableTokenSource(
+        getFlow: OAuth2Client.(ClientAuthTransport) -> TokenSource) {
     it("should cache token unless it is expired") {
         assertTokenCached(getFlow)
     }
