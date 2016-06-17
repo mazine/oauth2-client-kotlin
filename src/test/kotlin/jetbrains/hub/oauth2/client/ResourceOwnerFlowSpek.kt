@@ -5,8 +5,8 @@ import jetbrains.hub.oauth2.client.source.RefreshableTokenSource
 import org.jetbrains.spek.api.Spek
 import java.net.URI
 
-class ResourceOwnerSpek : Spek({
-    describe("Flow") {
+class ResourceOwnerFlowSpek : Spek({
+    describe("Token source") {
         val tokenEndpoint = URI.create("https://hub.jetbrains.com/api/rest/oauth2/token")
         val clientID = "1234-3213-3123"
         val clientSecret = "topsecret"
