@@ -3,7 +3,7 @@ package jetbrains.hub.oauth2.client.source
 import jetbrains.hub.oauth2.client.AccessToken
 import java.util.concurrent.atomic.AtomicReference
 
-abstract class RefreshableTokenSource(): TokenSource {
+abstract class RefreshableTokenSource() : TokenSource {
     private val cachedToken = AtomicReference<AccessToken>()
 
     override val accessToken: AccessToken
