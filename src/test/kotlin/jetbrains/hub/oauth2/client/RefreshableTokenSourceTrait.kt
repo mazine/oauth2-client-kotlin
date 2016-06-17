@@ -60,7 +60,9 @@ fun assertHeaderClientAuthSupported(clientID: String, clientSecret: String,
                                   getFlow: OAuth2Client.(ClientAuthTransport) -> TokenSource) {
     val tokenLoader = MockTokenLoader {
         assertEquals("Basic ${Base64.encode("$clientID:$clientSecret".toByteArray())}", headers["Authorization"])
-        assertNull(formParameters)
+        assertNull(formParameters["client_id"])
+        assertNull(formParameters["client_secret"])
+
         TokenResponse.Success(
                 accessToken = "access-token",
                 refreshToken = null,
@@ -79,9 +81,8 @@ fun assertFormClientAuthSupported(clientID: String, clientSecret: String,
                                   getFlow: OAuth2Client.(ClientAuthTransport) -> TokenSource) {
     val tokenLoader = MockTokenLoader {
         assertNull(headers["Authorization"])
-        assertEquals(mapOf(
-                "client_id" to clientID,
-                "client_secret" to clientSecret), formParameters)
+        assertEquals(clientID, formParameters["client_id"])
+        assertEquals(clientSecret, formParameters["client_secret"])
         TokenResponse.Success(
                 accessToken = "access-token",
                 refreshToken = null,

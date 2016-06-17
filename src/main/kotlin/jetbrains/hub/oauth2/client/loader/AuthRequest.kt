@@ -111,22 +111,6 @@ internal class TokenRequest(val uri: URI, val clientID: String, val clientSecret
     var scope: List<String>? = null
 
 
-    val queryParameters: Sequence<Pair<String, String?>>
-        get() = sequenceOf(
-                "grant_type" to grantType?.value,
-                "username" to username,
-                "password" to password,
-                "code" to code,
-                "scope" to scope?.joinToString(" "),
-                "redirect_uri" to redirectURI?.toASCIIString(),
-                "access_type" to if (requestRefreshToken) {
-                    AccessType.OFFLINE
-                } else {
-                    AccessType.ONLINE
-                }.value,
-                "refresh_token" to refreshToken
-        )
-
     val headers: Sequence<Pair<String, String>>
         get() {
             val acceptHeader = sequenceOf("Accept" to "application/json")
@@ -139,16 +123,22 @@ internal class TokenRequest(val uri: URI, val clientID: String, val clientSecret
             }
         }
 
-    val formParameters: Sequence<Pair<String, String>>?
-        get() {
-            return if (authTransport == ClientAuthTransport.FORM) {
-                sequenceOf(
-                        "client_id" to clientID,
-                        "client_secret" to clientSecret)
-
-            } else {
-                null
-            }
-        }
+    val formParameters: Sequence<Pair<String, String?>>
+        get() = sequenceOf(
+                "grant_type" to grantType?.value,
+                "client_id" to if (authTransport == ClientAuthTransport.FORM) clientID else null,
+                "client_secret" to if (authTransport == ClientAuthTransport.FORM) clientSecret else null,
+                "username" to username,
+                "password" to password,
+                "code" to code,
+                "scope" to scope?.joinToString(" "),
+                "redirect_uri" to redirectURI?.toASCIIString(),
+                "access_type" to if (requestRefreshToken) {
+                    AccessType.OFFLINE
+                } else {
+                    AccessType.ONLINE
+                }.value,
+                "refresh_token" to refreshToken
+        )
 
 }

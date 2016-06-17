@@ -9,8 +9,8 @@ import java.util.*
 class MockTokenLoader(var onTokenRequest: Request.() -> TokenResponse) : TokenLoader {
     val loadRecords = ArrayList<Request>()
 
-    override fun load(uri: URI, queryParameters: Map<String, String>, headers: Map<String, String>, formParameters: Map<String, String>?): TokenResponse {
-        val request = Request(authURI(uri, queryParameters), headers, formParameters)
+    override fun load(uri: URI, headers: Map<String, String>, formParameters: Map<String, String>): TokenResponse {
+        val request = Request(uri, headers, formParameters)
         loadRecords.add(request)
         return request.onTokenRequest()
     }
@@ -27,5 +27,5 @@ class MockTokenLoader(var onTokenRequest: Request.() -> TokenResponse) : TokenLo
         loadRecords.clear()
     }
 
-    class Request(val uri: URI, val headers: Map<String, String>, val formParameters: Map<String, String>?)
+    class Request(val uri: URI, val headers: Map<String, String>, val formParameters: Map<String, String>)
 }

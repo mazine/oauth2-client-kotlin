@@ -182,9 +182,8 @@ class OAuth2Client(val tokenLoader: TokenLoader) {
 
     private fun TokenLoader.load(tokenRequest: TokenRequest): TokenResponse {
         return load(tokenRequest.uri,
-                tokenRequest.queryParameters.mapNotNull(),
                 tokenRequest.headers.mapNotNull(),
-                tokenRequest.formParameters?.mapNotNull())
+                tokenRequest.formParameters.mapNotNull())
     }
 
     private fun TokenResponse.asAccessToken() = when (this) {
