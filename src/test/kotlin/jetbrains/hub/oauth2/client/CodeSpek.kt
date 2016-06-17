@@ -5,23 +5,22 @@ import jetbrains.hub.oauth2.client.source.RefreshableTokenSource
 import org.jetbrains.spek.api.Spek
 import java.net.URI
 
-class ClientFlowSpek : Spek({
-    describe("Client Flow") {
+class CodeSpek : Spek({
+    describe("Flow") {
         val tokenEndpoint = URI.create("https://hub.jetbrains.com/api/rest/oauth2/token")
         val clientID = "1234-3213-3123"
         val clientSecret = "topsecret"
-        val scopeElement = "0-0-0-0-0"
-        val scope = listOf(scopeElement, clientID)
+        val code = "SOME-CODE"
+        val redirectURI = URI.create("https://localhost:8080")
 
-        val getFlow: OAuth2Client.(ClientAuthTransport) -> RefreshableTokenSource = {
-            clientFlow(tokenEndpoint, clientID, clientSecret, scope, it)
+        val getFlow: OAuth2Client.(ClientAuthTransport) -> RefreshableTokenSource = { authTransport ->
+            codeFlow(tokenEndpoint, code, redirectURI, clientID, clientSecret, authTransport)
         }
 
         itShouldBeValidTokenSource(tokenEndpoint, clientID, clientSecret, mapOf(
-                "grant_type" to "client_credentials",
-                "scope" to "$scopeElement $clientID"
+                "grant_type" to "authorization_code",
+                "code" to code,
+                "redirect_uri" to redirectURI.toASCIIString()
         ), getFlow)
-
-        itShouldBeRefreshableTokenSource(getFlow)
     }
 })

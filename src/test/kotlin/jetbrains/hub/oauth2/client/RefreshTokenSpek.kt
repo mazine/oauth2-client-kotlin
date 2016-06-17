@@ -5,25 +5,22 @@ import jetbrains.hub.oauth2.client.source.RefreshableTokenSource
 import org.jetbrains.spek.api.Spek
 import java.net.URI
 
-class ResourceOwnerFlowSpek : Spek({
-    describe("Resource Owner Flow") {
+class RefreshTokenSpek : Spek({
+    describe("Flow") {
         val tokenEndpoint = URI.create("https://hub.jetbrains.com/api/rest/oauth2/token")
         val clientID = "1234-3213-3123"
         val clientSecret = "topsecret"
-        val username = "user"
-        val password = "secret"
+        val refreshToken = "SOME-CODE"
         val scopeElement = "0-0-0-0-0"
         val scope = listOf(scopeElement, clientID)
 
-
-        val getFlow: OAuth2Client.(ClientAuthTransport) -> RefreshableTokenSource = {
-            resourceOwnerFlow(tokenEndpoint, username, password, clientID, clientSecret, scope, it)
+        val getFlow: OAuth2Client.(ClientAuthTransport) -> RefreshableTokenSource = { authTransport ->
+            refreshTokenFlow(tokenEndpoint, refreshToken, clientID, clientSecret, scope, authTransport)
         }
 
         itShouldBeValidTokenSource(tokenEndpoint, clientID, clientSecret, mapOf(
-                "grant_type" to "password",
-                "username" to username,
-                "password" to password,
+                "grant_type" to "refresh_token",
+                "refresh_token" to refreshToken,
                 "scope" to "$scopeElement $clientID"
         ), getFlow)
 

@@ -6,7 +6,7 @@ import java.net.URI
 import java.net.URLEncoder
 import java.util.*
 
-class MockTokenLoader(var onTokenRequest: Request.() -> TokenResponse) : TokenLoader {
+open class MockTokenLoader(var onTokenRequest: Request.() -> TokenResponse) : TokenLoader {
     val loadRecords = ArrayList<Request>()
 
     override fun load(uri: URI, headers: Map<String, String>, formParameters: Map<String, String>): TokenResponse {
@@ -21,10 +21,6 @@ class MockTokenLoader(var onTokenRequest: Request.() -> TokenResponse) : TokenLo
             val eValue = URLEncoder.encode(it.value, "UTF-8")
             "$eName=$eValue"
         }.joinToString("&")}")
-    }
-
-    fun reset() {
-        loadRecords.clear()
     }
 
     class Request(val uri: URI, val headers: Map<String, String>, val formParameters: Map<String, String>)
