@@ -8,11 +8,13 @@ import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-class ClientFlowSpec : Spek({
-    describe("Client Flow") {
+class ResourceOwnerFlowSpec : Spek({
+    describe("Resource Owner Flow") {
         val tokenEndpoint = URI.create("https://hub.jetbrains.com/api/rest/oauth2/token")
         val clientID = "1234-3213-3123"
         val clientSecret = "topsecret"
+        val username = "user"
+        val password = "secret"
         val scope = listOf("0-0-0-0-0", clientID)
 
         val tokenLoader = MockTokenLoader { throw IllegalStateException() }
@@ -24,9 +26,12 @@ class ClientFlowSpec : Spek({
 
         it("should access server with valid request if token is requested") {
             assertFlowIsCorrect({
-                clientFlow(tokenEndpoint, clientID, clientSecret, scope)
+                resourceOwnerFlow(tokenEndpoint, username, password, clientID, clientSecret, scope)
             }) {
-                assertEquals("https://hub.jetbrains.com/api/rest/oauth2/token?grant_type=client_credentials&scope=0-0-0-0-0+$clientID", uri.toASCIIString())
+                assertEquals("https://hub.jetbrains.com/api/rest/oauth2/token?grant_type=password" +
+                        "&username=user" +
+                        "&password=secret" +
+                        "&scope=0-0-0-0-0+$clientID", uri.toASCIIString())
                 assertEquals("Basic MTIzNC0zMjEzLTMxMjM6dG9wc2VjcmV0", headers["Authorization"])
                 assertNull(formParameters)
                 TokenResponse.Success(
@@ -40,13 +45,13 @@ class ClientFlowSpec : Spek({
 
         it("should pass credentials as form parameters if required") {
             assertHeaderClientAuthSupported(clientID, clientSecret, {
-                clientFlow(tokenEndpoint, clientID, clientSecret, scope, ClientAuthTransport.FORM)
+                resourceOwnerFlow(tokenEndpoint, username, password, clientID, clientSecret, scope, ClientAuthTransport.FORM)
             })
         }
 
         it("shouldn't access server unless token is requested") {
             assertDoesntAccessServerUntilTokenIsRequested {
-                clientFlow(tokenEndpoint, clientID, clientSecret, scope)
+                resourceOwnerFlow(tokenEndpoint, username, password, clientID, clientSecret, scope)
             }
         }
 
@@ -59,7 +64,7 @@ class ClientFlowSpec : Spek({
                         requestTime = Calendar.getInstance(),
                         scope = listOf(clientID))
             }
-            val clientFlow = oauth2Client.clientFlow(tokenEndpoint, clientID, clientSecret, scope)
+            val clientFlow = oauth2Client.resourceOwnerFlow(tokenEndpoint, username, password, clientID, clientSecret, scope)
 
             clientFlow.accessToken
             clientFlow.accessToken
@@ -78,7 +83,7 @@ class ClientFlowSpec : Spek({
                         requestTime = "2016-06-16 12:00:00".toCalendar(),
                         scope = listOf(clientID))
             }
-            val clientFlow = oauth2Client.clientFlow(tokenEndpoint, clientID, clientSecret, scope)
+            val clientFlow = oauth2Client.resourceOwnerFlow(tokenEndpoint, username, password, clientID, clientSecret, scope)
 
             clientFlow.accessToken
             clientFlow.accessToken
