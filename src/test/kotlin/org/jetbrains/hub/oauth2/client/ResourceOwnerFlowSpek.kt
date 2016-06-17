@@ -1,7 +1,6 @@
 package org.jetbrains.hub.oauth2.client
 
 import org.jetbrains.hub.oauth2.client.loader.ClientAuthTransport
-import org.jetbrains.hub.oauth2.client.source.RefreshableTokenSource
 import org.jetbrains.spek.api.Spek
 import java.net.URI
 
@@ -15,7 +14,7 @@ class ResourceOwnerFlowSpek : Spek({
         val scopeElement = "0-0-0-0-0"
         val scope = listOf(scopeElement, clientID)
 
-        val getFlow: OAuth2Client.(ClientAuthTransport) -> RefreshableTokenSource = { authTransport ->
+        val getFlow: OAuth2Client.(ClientAuthTransport) -> AccessTokenSource = { authTransport ->
             resourceOwnerFlow(tokenEndpoint, username, password, clientID, clientSecret, scope, authTransport)
         }
 
@@ -24,7 +23,7 @@ class ResourceOwnerFlowSpek : Spek({
                 "username" to username,
                 "password" to password,
                 "scope" to "$scopeElement $clientID"
-        ), getFlow)
+        ), { getFlow(it).accessToken })
 
         itShouldBeRefreshableTokenSource(getFlow)
     }

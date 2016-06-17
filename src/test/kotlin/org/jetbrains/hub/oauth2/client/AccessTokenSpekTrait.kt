@@ -2,29 +2,26 @@ package org.jetbrains.hub.oauth2.client
 
 import org.jetbrains.hub.oauth2.client.loader.ClientAuthTransport
 import org.jetbrains.hub.oauth2.client.loader.TokenResponse
-import org.jetbrains.hub.oauth2.client.source.TokenSource
 import org.jetbrains.spek.api.DescribeBody
 import java.net.URI
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 
 fun DescribeBody.itShouldBeValidTokenSource(
         expectedTokenEndpoint: URI,
         clientID: String, clientSecret: String,
         expectedFormParameters: Map<String, String>,
-        getFlow: OAuth2Client.(ClientAuthTransport) -> TokenSource) {
+        getAccessToken: OAuth2Client.(ClientAuthTransport) -> AccessToken) {
     it("should parse access token correctly") {
-        val (source, tokenLoader) = createTokenSourceAndLoader(getFlow, TokenResponse.Success(
+        val (accessToken, tokenLoader) = createTokenSourceAndLoader(getAccessToken, TokenResponse.Success(
                 accessToken = "access-token",
                 refreshToken = null,
                 expiresIn = 3600,
                 requestTime = "2016-06-16 12:00:00".toCalendar(),
                 scope = listOf("0-0-0-0-0"))
         )
-        val accessToken = source.accessToken
         assertEquals("access-token", accessToken.accessToken)
         assertEquals("2016-06-16 13:00:00", accessToken.expiresAt.asString())
         assertEquals(listOf("0-0-0-0-0"), accessToken.scope)
@@ -35,19 +32,19 @@ fun DescribeBody.itShouldBeValidTokenSource(
     }
 
     it("should call correct token endpoint") {
-        requestToken({ getFlow(ClientAuthTransport.HEADER) }) {
+        requestToken({ getAccessToken(ClientAuthTransport.HEADER) }) {
             assertEquals(expectedTokenEndpoint, uri)
         }
     }
 
     it("should request token with correct form parameters") {
-        requestToken({ getFlow(ClientAuthTransport.HEADER) }) {
+        requestToken({ getAccessToken(ClientAuthTransport.HEADER) }) {
             assertEquals(expectedFormParameters, this.formParameters)
         }
     }
 
     it("should pass credentials as header parameters if required") {
-        requestToken({ getFlow(ClientAuthTransport.HEADER) }) {
+        requestToken({ getAccessToken(ClientAuthTransport.HEADER) }) {
             assertEquals("Basic ${Base64.encode("$clientID:$clientSecret".toByteArray())}", headers["Authorization"])
             assertNull(formParameters["client_id"])
             assertNull(formParameters["client_secret"])
@@ -55,7 +52,7 @@ fun DescribeBody.itShouldBeValidTokenSource(
     }
 
     it("should pass credentials as form parameters if required") {
-        requestToken({ getFlow(ClientAuthTransport.FORM) }) {
+        requestToken({ getAccessToken(ClientAuthTransport.FORM) }) {
             assertNull(headers["Authorization"])
             assertEquals(clientID, formParameters["client_id"])
             assertEquals(clientSecret, formParameters["client_secret"])
@@ -63,38 +60,8 @@ fun DescribeBody.itShouldBeValidTokenSource(
     }
 }
 
-fun DescribeBody.itShouldBeRefreshableTokenSource(
-        getFlow: OAuth2Client.(ClientAuthTransport) -> TokenSource) {
-    it("shouldn't access server unless token is requested") {
-        val tokenLoader = createTokenSourceAndLoader(getFlow).second
-        assertTrue(tokenLoader.loadRecords.isEmpty())
-    }
-
-    it("should cache token unless it is expired") {
-        val (source, tokenLoader) = createTokenSourceAndLoader(getFlow)
-        source.accessToken
-        source.accessToken
-        assertEquals(1, tokenLoader.loadRecords.size)
-    }
-
-    it("should refresh token when it is expired") {
-        val (source, tokenLoader) = createTokenSourceAndLoader(getFlow, TokenResponse.Success(
-                accessToken = "access-token",
-                refreshToken = null,
-                expiresIn = 3600,
-                requestTime = "2016-06-16 12:00:00".toCalendar(),
-                scope = listOf())
-        )
-
-        source.accessToken
-        source.accessToken
-
-        assertEquals(2, tokenLoader.loadRecords.size)
-    }
-}
-
 private fun requestToken(
-        getFlow: OAuth2Client.() -> TokenSource,
+        getAccessToken: OAuth2Client.() -> AccessToken,
         assertTokenRequest: MockTokenLoader.Request.() -> Unit) {
     OAuth2Client(MockTokenLoader {
         assertTokenRequest()
@@ -105,19 +72,19 @@ private fun requestToken(
                 requestTime = "2016-06-16 12:00:00".toCalendar(),
                 scope = listOf("0-0-0-0-0"))
 
-    }).getFlow().accessToken
+    }).getAccessToken()
 }
 
 private fun createTokenSourceAndLoader(
-        getFlow: OAuth2Client.(ClientAuthTransport) -> TokenSource,
+        getAccessToken: OAuth2Client.(ClientAuthTransport) -> AccessToken,
         tokenResponse: TokenResponse = TokenResponse.Success(
                 accessToken = "access-token",
                 refreshToken = null,
                 expiresIn = 3600,
                 requestTime = Calendar.getInstance(),
-                scope = listOf())): Pair<TokenSource, MockTokenLoader> {
+                scope = listOf())): Pair<AccessToken, MockTokenLoader> {
     val tokenLoader = MockTokenLoader { tokenResponse }
 
-    val flow = OAuth2Client(tokenLoader).getFlow(ClientAuthTransport.HEADER)
-    return Pair(flow, tokenLoader)
+    val accessToken = OAuth2Client(tokenLoader).getAccessToken(ClientAuthTransport.HEADER)
+    return Pair(accessToken, tokenLoader)
 }

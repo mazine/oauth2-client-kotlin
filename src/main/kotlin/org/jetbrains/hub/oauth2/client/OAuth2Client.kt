@@ -1,9 +1,6 @@
 package org.jetbrains.hub.oauth2.client
 
 import org.jetbrains.hub.oauth2.client.loader.*
-import org.jetbrains.hub.oauth2.client.source.OneTimeTokenSource
-import org.jetbrains.hub.oauth2.client.source.RefreshableTokenSource
-import org.jetbrains.hub.oauth2.client.source.TokenSource
 import java.net.URI
 
 class OAuth2Client(val tokenLoader: TokenLoader = JerseyClientTokenLoader()) {
@@ -12,7 +9,7 @@ class OAuth2Client(val tokenLoader: TokenLoader = JerseyClientTokenLoader()) {
             clientID: String,
             clientSecret: String,
             scope: List<String>,
-            authTransport: ClientAuthTransport = ClientAuthTransport.HEADER): RefreshableTokenSource {
+            authTransport: ClientAuthTransport = ClientAuthTransport.HEADER): AccessTokenSource {
         return refreshableTokenSource(TokenRequest(tokenEndpoint, clientID, clientSecret).apply {
             this.grantType = GrantType.CLIENT_CREDENTIALS
             this.scope = scope
@@ -25,7 +22,7 @@ class OAuth2Client(val tokenLoader: TokenLoader = JerseyClientTokenLoader()) {
             username: String, password: String,
             clientID: String, clientSecret: String,
             scope: List<String>,
-            authTransport: ClientAuthTransport = ClientAuthTransport.HEADER): RefreshableTokenSource {
+            authTransport: ClientAuthTransport = ClientAuthTransport.HEADER): AccessTokenSource {
         return refreshableTokenSource(resourceOwnerTokenRequest(
                 tokenEndpoint, username, password,
                 clientID, clientSecret,
@@ -93,12 +90,12 @@ class OAuth2Client(val tokenLoader: TokenLoader = JerseyClientTokenLoader()) {
             redirectURI: URI,
             clientID: String,
             clientSecret: String,
-            authTransport: ClientAuthTransport = ClientAuthTransport.HEADER): TokenSource {
+            authTransport: ClientAuthTransport = ClientAuthTransport.HEADER): AccessToken {
         val response = tokenLoader.load(codeFlowTokenRequest(
                 tokenEndpoint, code, redirectURI,
                 clientID, clientSecret, authTransport))
 
-        return OneTimeTokenSource(response.asAccessToken())
+        return response.asAccessToken()
     }
 
     fun codeRefreshToken(
@@ -156,7 +153,7 @@ class OAuth2Client(val tokenLoader: TokenLoader = JerseyClientTokenLoader()) {
                          clientID: String,
                          clientSecret: String,
                          scope: List<String>,
-                         authTransport: ClientAuthTransport = ClientAuthTransport.HEADER): RefreshableTokenSource {
+                         authTransport: ClientAuthTransport = ClientAuthTransport.HEADER): AccessTokenSource {
         return refreshableTokenSource(TokenRequest(tokenEndpoint, clientID, clientSecret).apply {
             this.grantType = GrantType.REFRESH_TOKEN
             this.refreshToken = refreshToken
@@ -165,9 +162,9 @@ class OAuth2Client(val tokenLoader: TokenLoader = JerseyClientTokenLoader()) {
         })
     }
 
-    private fun refreshableTokenSource(tokenRequest: TokenRequest): RefreshableTokenSource {
-        return object : RefreshableTokenSource() {
-            override fun loadToken(): org.jetbrains.hub.oauth2.client.AccessToken {
+    private fun refreshableTokenSource(tokenRequest: TokenRequest): AccessTokenSource {
+        return object : AccessTokenSource() {
+            override fun loadToken(): AccessToken {
                 val response = tokenLoader.load(tokenRequest)
                 return response.asAccessToken()
             }
@@ -192,7 +189,7 @@ class OAuth2Client(val tokenLoader: TokenLoader = JerseyClientTokenLoader()) {
 
     private fun TokenResponse.asAccessToken() = when (this) {
         is TokenResponse.Success ->
-            org.jetbrains.hub.oauth2.client.AccessToken(accessToken, expiresAt, scope)
+            AccessToken(accessToken, expiresAt, scope)
         is TokenResponse.Error ->
             throw AuthException(error, description)
     }

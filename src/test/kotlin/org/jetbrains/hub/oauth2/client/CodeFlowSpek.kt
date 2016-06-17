@@ -1,7 +1,6 @@
 package org.jetbrains.hub.oauth2.client
 
 import org.jetbrains.hub.oauth2.client.loader.ClientAuthTransport
-import org.jetbrains.hub.oauth2.client.source.TokenSource
 import org.jetbrains.spek.api.Spek
 import java.net.URI
 import kotlin.test.assertEquals
@@ -56,7 +55,7 @@ class CodeFlowSpek : Spek({
         val code = "SOME-CODE"
         val redirectURI = URI.create("https://localhost:8080")
 
-        val getFlow: OAuth2Client.(ClientAuthTransport) -> TokenSource = { authTransport ->
+        val getAccessToken: OAuth2Client.(ClientAuthTransport) -> AccessToken = { authTransport ->
             codeFlow(tokenEndpoint, code, redirectURI, clientID, clientSecret, authTransport)
         }
 
@@ -64,7 +63,7 @@ class CodeFlowSpek : Spek({
                 "grant_type" to "authorization_code",
                 "code" to code,
                 "redirect_uri" to redirectURI.toASCIIString()
-        ), getFlow)
+        ), getAccessToken)
     }
 
     describe("Refresh token") {

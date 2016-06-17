@@ -1,7 +1,6 @@
 package org.jetbrains.hub.oauth2.client
 
 import org.jetbrains.hub.oauth2.client.loader.ClientAuthTransport
-import org.jetbrains.hub.oauth2.client.source.RefreshableTokenSource
 import org.jetbrains.spek.api.Spek
 import java.net.URI
 
@@ -14,7 +13,7 @@ class RefreshTokenFlowSpek : Spek({
         val scopeElement = "0-0-0-0-0"
         val scope = listOf(scopeElement, clientID)
 
-        val getFlow: OAuth2Client.(ClientAuthTransport) -> RefreshableTokenSource = { authTransport ->
+        val getFlow: OAuth2Client.(ClientAuthTransport) -> AccessTokenSource = { authTransport ->
             refreshTokenFlow(tokenEndpoint, refreshToken, clientID, clientSecret, scope, authTransport)
         }
 
@@ -22,7 +21,7 @@ class RefreshTokenFlowSpek : Spek({
                 "grant_type" to "refresh_token",
                 "refresh_token" to refreshToken,
                 "scope" to "$scopeElement $clientID"
-        ), getFlow)
+        ), { getFlow(it).accessToken })
 
         itShouldBeRefreshableTokenSource(getFlow)
     }
