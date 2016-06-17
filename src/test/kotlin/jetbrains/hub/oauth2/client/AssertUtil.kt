@@ -2,6 +2,7 @@ package jetbrains.hub.oauth2.client
 
 import jetbrains.hub.oauth2.client.loader.TokenResponse
 import jetbrains.hub.oauth2.client.source.TokenSource
+import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -62,4 +63,46 @@ fun assertDoesntAccessServerUntilTokenIsRequested(getFlow: OAuth2Client.() -> To
     client.getFlow()
     assertTrue(tokenLoader.loadRecords.isEmpty())
 }
+
+fun assertTokenCached(getFlow: OAuth2Client.() -> TokenSource) {
+    val tokenLoader = MockTokenLoader {
+        TokenResponse.Success(
+                accessToken = "access-token",
+                refreshToken = null,
+                expiresIn = 3600,
+                requestTime = Calendar.getInstance(),
+                scope = listOf())
+    }
+    val client = OAuth2Client(tokenLoader)
+
+    val flow = client.getFlow()
+
+    flow.accessToken
+    flow.accessToken
+    flow.accessToken
+    flow.accessToken
+
+    assertEquals(1, tokenLoader.loadRecords.size)
+}
+
+fun assertExpiredTokenRefreshed(getFlow: OAuth2Client.() -> TokenSource) {
+    val tokenLoader = MockTokenLoader {
+        TokenResponse.Success(
+                accessToken = "access-token",
+                refreshToken = null,
+                expiresIn = 3600,
+                requestTime = "2016-06-16 12:00:00".toCalendar(),
+                scope = listOf())
+    }
+    val client = OAuth2Client(tokenLoader)
+
+    val flow = client.getFlow()
+
+    flow.accessToken
+    flow.accessToken
+
+    assertEquals(2, tokenLoader.loadRecords.size)
+}
+
+
 

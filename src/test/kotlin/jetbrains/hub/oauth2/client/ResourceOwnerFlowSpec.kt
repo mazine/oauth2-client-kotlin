@@ -2,9 +2,9 @@ package jetbrains.hub.oauth2.client
 
 import jetbrains.hub.oauth2.client.loader.ClientAuthTransport
 import jetbrains.hub.oauth2.client.loader.TokenResponse
+import jetbrains.hub.oauth2.client.source.RefreshableTokenSource
 import org.jetbrains.spek.api.Spek
 import java.net.URI
-import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
@@ -17,17 +17,12 @@ class ResourceOwnerFlowSpec : Spek({
         val password = "secret"
         val scope = listOf("0-0-0-0-0", clientID)
 
-        val tokenLoader = MockTokenLoader { throw IllegalStateException() }
-        val oauth2Client = OAuth2Client(tokenLoader)
-
-        beforeEach {
-            tokenLoader.reset()
+        val getResourceOwnerFlow: OAuth2Client.() -> RefreshableTokenSource = {
+            resourceOwnerFlow(tokenEndpoint, username, password, clientID, clientSecret, scope)
         }
 
         it("should access server with valid request if token is requested") {
-            assertFlowIsCorrect({
-                resourceOwnerFlow(tokenEndpoint, username, password, clientID, clientSecret, scope)
-            }) {
+            assertFlowIsCorrect(getResourceOwnerFlow) {
                 assertEquals("https://hub.jetbrains.com/api/rest/oauth2/token?grant_type=password" +
                         "&username=user" +
                         "&password=secret" +
@@ -50,45 +45,15 @@ class ResourceOwnerFlowSpec : Spek({
         }
 
         it("shouldn't access server unless token is requested") {
-            assertDoesntAccessServerUntilTokenIsRequested {
-                resourceOwnerFlow(tokenEndpoint, username, password, clientID, clientSecret, scope)
-            }
+            assertDoesntAccessServerUntilTokenIsRequested(getResourceOwnerFlow)
         }
 
         it("should cache token unless it is expired") {
-            tokenLoader.onTokenRequest = {
-                TokenResponse.Success(
-                        accessToken = "access-token",
-                        refreshToken = null,
-                        expiresIn = 3600,
-                        requestTime = Calendar.getInstance(),
-                        scope = listOf(clientID))
-            }
-            val clientFlow = oauth2Client.resourceOwnerFlow(tokenEndpoint, username, password, clientID, clientSecret, scope)
-
-            clientFlow.accessToken
-            clientFlow.accessToken
-            clientFlow.accessToken
-            clientFlow.accessToken
-
-            assertEquals(1, tokenLoader.loadRecords.size)
+            assertTokenCached(getResourceOwnerFlow)
         }
 
         it("should refresh token when it is expired") {
-            tokenLoader.onTokenRequest = {
-                TokenResponse.Success(
-                        accessToken = "access-token",
-                        refreshToken = null,
-                        expiresIn = 3600,
-                        requestTime = "2016-06-16 12:00:00".toCalendar(),
-                        scope = listOf(clientID))
-            }
-            val clientFlow = oauth2Client.resourceOwnerFlow(tokenEndpoint, username, password, clientID, clientSecret, scope)
-
-            clientFlow.accessToken
-            clientFlow.accessToken
-
-            assertEquals(2, tokenLoader.loadRecords.size)
+            assertExpiredTokenRefreshed(getResourceOwnerFlow)
         }
     }
 })
