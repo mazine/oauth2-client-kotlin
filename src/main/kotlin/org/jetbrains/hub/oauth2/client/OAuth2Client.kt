@@ -3,7 +3,7 @@ package org.jetbrains.hub.oauth2.client
 import org.jetbrains.hub.oauth2.client.loader.*
 import java.net.URI
 
-class OAuth2Client(val tokenLoader: TokenLoader = JerseyClientTokenLoader()) {
+class OAuth2Client(val tokenLoader: TokenLoader) {
     fun clientFlow(
             tokenEndpoint: URI,
             clientID: String,

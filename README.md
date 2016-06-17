@@ -60,7 +60,7 @@ dependencies {
    Token` for the user.
 2. Your application saves the information about the URI, user tried to access, under the unique identifier `state`.
 3. Your application redirects the user to the OAuth 2.0 server passing the `state` as one of the parameters.
-4. User identifies herself at the OAuth 2.0 server (e.g. by entering username and password).
+4. User identifies herself at the OAuth 2.0 server (e.g. by entering her username and password).
 5. OAuth 2.0 server redirects the user back to your application (to the `Redirect URI` to be precise) with two query
    parameters: `state` and `code`.
 6. Your application makes a server to server HTTP call to the OAuth 2.0 server exchanging the `code` for the `Access
@@ -75,7 +75,7 @@ the `Access Token` on the step 6.
 
 **Build URI**
 ```
-val targetURI = OAuth2Client().codeFlowURI(
+val targetURI = oauth2Client().codeFlowURI(
         authEndpoint = URI("https://hub.jetbrains.com/api/rest/oauth2/auth"),
         clientID = "1234-3213-3123",
         redirectURI = URI("https://localhost:8080/auth"),
@@ -85,7 +85,7 @@ val targetURI = OAuth2Client().codeFlowURI(
 
 **Exchange code**
 ```
-val accessToken = OAuth2Client().codeFlow(
+val accessToken = oauth2Client().codeFlow(
         tokenEndpoint = URI("https://hub.jetbrains.com/api/rest/oauth2/token"),
         code = "sOMec0de",
         redirectURI = URI("https://localhost:8080/auth"),
@@ -110,7 +110,7 @@ The library allows to create an `AccessTokenSource` for this flow. It is an obje
 caches an `Access Token`, and renews the `Access Token` when it expires.
 
 ```
-val tokenSource = OAuth2Client().clientFlow(
+val tokenSource = oauth2Client().clientFlow(
         tokenEndpoint = URI("https://hub.jetbrains.com/api/rest/oauth2/token"),
         clientID = "1234-3213-3123",
         clientSecret = "sGUl4x",
@@ -134,7 +134,7 @@ or [Hub Docs](https://www.jetbrains.com/help/hub/2.0/Resource-Owner-Password-Cre
 The library allows to create an `AccessTokenSource` for this flow.
 
 ```
-val tokenSource = OAuth2Client().resourceOwnerFlow(
+val tokenSource = oauth2Client().resourceOwnerFlow(
         tokenEndpoint = URI("https://hub.jetbrains.com/api/rest/oauth2/token"),
         username = "john.doe",
         password = "p@$Sw0rd",
@@ -145,4 +145,37 @@ val tokenSource = OAuth2Client().resourceOwnerFlow(
 do {
     // Make various calls using tokenSource.accessToken.header
 } while (true)
+```
+
+### Implicit Flow
+
+**Use it if**
+
+Your application is public. Typically a JavaScript code in a browser.
+
+**How It Works?**
+1. User downloads your JavaScript application into her browser. To access resources via REST API your application
+   needs an `Access Token`.
+2. Your application finds out that it has no `Access Token` yet.
+3. Your application saves the information about the URI, user tried to access, under the unique identifier `state`
+   (e.g. in a local storage of the browser).
+4. Your application redirects the user to the OAuth 2.0 server passing the `state` as one of the parameters.
+5. User identifies herself at the OAuth 2.0 server (e.g. by entering her username and password).
+6. OAuth 2.0 server redirects the user back to your application (to the `Redirect URI` to be precise) with an
+   `Access Token` in parameters after ‘`#`’. The trick here is that browser sends nothing after ‘`#`’ in URL to
+   the server, but the part after ‘`#`’ is accessible for your JavaScript application. So the `Access Token` never
+   leaves user's browser.
+
+For further details check [OAuth 2.0 Spec](http://tools.ietf.org/html/rfc6749#section-4.2)
+or [Hub Docs](https://www.jetbrains.com/help/hub/2.0/Implicit.html).
+
+The library only helps to build the URI to redirect the user on the step 4.
+
+```
+val targetURI = oauth2Client().implicitFlowURI(
+        authEndpoint = URI("https://hub.jetbrains.com/api/rest/oauth2/auth"),
+        clientID = "1234-3213-3123",
+        redirectURI = URI("https://localhost:8080/auth"),
+        scope = listOf("0-0-0-0-0", clientID),
+        state = "some-unique-state-id")
 ```

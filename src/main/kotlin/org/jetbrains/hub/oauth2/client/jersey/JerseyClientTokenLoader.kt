@@ -1,7 +1,10 @@
-package org.jetbrains.hub.oauth2.client.loader
+package org.jetbrains.hub.oauth2.client.jersey
 
 import org.glassfish.jersey.client.JerseyClient
 import org.glassfish.jersey.client.JerseyClientBuilder
+import org.jetbrains.hub.oauth2.client.OAuth2Client
+import org.jetbrains.hub.oauth2.client.loader.TokenLoader
+import org.jetbrains.hub.oauth2.client.loader.TokenResponse
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.util.*
@@ -53,3 +56,5 @@ class JerseyClientTokenLoader(val jerseyClient: JerseyClient = JerseyClientBuild
         throw UnsupportedOperationException()
     }
 }
+
+fun oauth2Client() = OAuth2Client(JerseyClientTokenLoader())
