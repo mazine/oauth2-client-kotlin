@@ -85,11 +85,35 @@ val targetURI = OAuth2Client().codeFlowURI(
 
 **Exchange code**
 ```
-val tokenSource = OAuth2Client().codeFlow(
+val accessToken = OAuth2Client().codeFlow(
         tokenEndpoint = URI("https://hub.jetbrains.com/api/rest/oauth2/token"),
         code = "sOMec0de",
         redirectURI = URI("https://localhost:8080/auth"),
         clientID = "1234-3213-3123",
         clientSecret = "sGUl4x")
+
+do {
+    // Make various calls using accessToken.header
+} while (!accessToken.isExpired)
 ```
 
+### Client Flow
+
+**Use it if**
+- Your application accesses resources on behalf of itself.
+- The `Client ID`, `Client Secret` and any access token issued to your application are stored confident.
+
+The library allows to create a `RefreshableTokenSource` for this flow. It is an object that retrieves and
+caches an `Access Token`, and renews the `Access Token` when it expires.
+
+```
+val tokenSource = OAuth2Client().clientFlow(
+        tokenEndpoint = URI("https://hub.jetbrains.com/api/rest/oauth2/token"),
+        clientID = "1234-3213-3123",
+        clientSecret = "sGUl4x",
+        scope = listOf("0-0-0-0-0", clientID))
+
+do {
+    // Make various calls using tokenSource.accessToken.header
+} while (true)
+```
