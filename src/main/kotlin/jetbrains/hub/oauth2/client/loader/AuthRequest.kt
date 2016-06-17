@@ -85,10 +85,10 @@ internal class AuthRequest(val uri: URI, var clientID: String) {
         get() = sequenceOf(
                 "response_type" to authResponseType?.value,
                 "client_id" to clientID,
-                "scope" to scope?.joinToString(" "),
-                "message" to message,
                 "redirect_uri" to redirectURI?.toASCIIString(),
+                "scope" to scope?.joinToString(" "),
                 "state" to state,
+                "message" to message,
                 "approval_prompt" to prompt?.value?.toLowerCase(),
                 "request_credentials" to requestCredentials.value?.toLowerCase(),
                 "access_type" to if (requestRefreshToken) {

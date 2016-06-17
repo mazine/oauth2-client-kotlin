@@ -64,8 +64,8 @@ class OAuth2Client(val tokenLoader: TokenLoader) {
 
     fun codeFlowURI(
             authEndpoint: URI,
-            redirectURI: URI,
             clientID: String,
+            redirectURI: URI,
             scope: List<String>,
             state: String,
             requestRefreshToken: Boolean = false,
@@ -128,8 +128,8 @@ class OAuth2Client(val tokenLoader: TokenLoader) {
 
     fun implicitFlowURI(
             authEndpoint: URI,
-            redirectURI: URI,
             clientID: String,
+            redirectURI: URI,
             scope: List<String>,
             state: String,
             message: String? = null,
