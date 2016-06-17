@@ -8,19 +8,19 @@ import java.net.URI
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-class ClientFlowSpec : Spek({
+class ClientFlowSpek : Spek({
     describe("Client Flow") {
         val tokenEndpoint = URI.create("https://hub.jetbrains.com/api/rest/oauth2/token")
         val clientID = "1234-3213-3123"
         val clientSecret = "topsecret"
         val scope = listOf("0-0-0-0-0", clientID)
 
-        val getClientFlow: OAuth2Client.() -> RefreshableTokenSource = {
-            clientFlow(tokenEndpoint, clientID, clientSecret, scope)
+        val getFlow: OAuth2Client.(ClientAuthTransport) -> RefreshableTokenSource = {
+            clientFlow(tokenEndpoint, clientID, clientSecret, scope, it)
         }
 
         it("should access server with valid request if token is requested") {
-            assertFlowIsCorrect(getClientFlow) {
+            assertFlowIsCorrect(getFlow) {
                 assertEquals("https://hub.jetbrains.com/api/rest/oauth2/token?grant_type=client_credentials&scope=0-0-0-0-0+$clientID", uri.toASCIIString())
                 assertEquals("Basic MTIzNC0zMjEzLTMxMjM6dG9wc2VjcmV0", headers["Authorization"])
                 assertNull(formParameters)
@@ -33,22 +33,7 @@ class ClientFlowSpec : Spek({
             }
         }
 
-        it("should pass credentials as form parameters if required") {
-            assertHeaderClientAuthSupported(clientID, clientSecret, {
-                clientFlow(tokenEndpoint, clientID, clientSecret, scope, ClientAuthTransport.FORM)
-            })
-        }
+        itShouldBeRefreshableTokenSource(clientID, clientSecret, getFlow)
 
-        it("shouldn't access server unless token is requested") {
-            assertDoesntAccessServerUntilTokenIsRequested(getClientFlow)
-        }
-
-        it("should cache token unless it is expired") {
-            assertTokenCached(getClientFlow)
-        }
-
-        it("should refresh token when it is expired") {
-            assertExpiredTokenRefreshed(getClientFlow)
-        }
     }
 })
