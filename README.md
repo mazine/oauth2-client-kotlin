@@ -103,12 +103,41 @@ do {
 - Your application accesses resources on behalf of itself.
 - The `Client ID`, `Client Secret` and any access token issued to your application are stored confident.
 
-The library allows to create a `RefreshableTokenSource` for this flow. It is an object that retrieves and
+For further details check [OAuth 2.0 Spec](http://tools.ietf.org/html/rfc6749#section-4.4)
+or [Hub Docs](https://www.jetbrains.com/help/hub/2.0/Client-Credentials.html).
+
+The library allows to create an `AccessTokenSource` for this flow. It is an object that retrieves and
 caches an `Access Token`, and renews the `Access Token` when it expires.
 
 ```
 val tokenSource = OAuth2Client().clientFlow(
         tokenEndpoint = URI("https://hub.jetbrains.com/api/rest/oauth2/token"),
+        clientID = "1234-3213-3123",
+        clientSecret = "sGUl4x",
+        scope = listOf("0-0-0-0-0", clientID))
+
+do {
+    // Make various calls using tokenSource.accessToken.header
+} while (true)
+```
+
+### Resource Owner Flow
+
+**Use it if**
+
+Your application knows user credentials and accesses resources on behalf of a user. For example, your application is
+the device operating system or a highly privileged application.
+
+For further details check [OAuth 2.0 Spec](http://tools.ietf.org/html/rfc6749#section-4.3)
+or [Hub Docs](https://www.jetbrains.com/help/hub/2.0/Resource-Owner-Password-Credentials.html).
+
+The library allows to create an `AccessTokenSource` for this flow.
+
+```
+val tokenSource = OAuth2Client().resourceOwnerFlow(
+        tokenEndpoint = URI("https://hub.jetbrains.com/api/rest/oauth2/token"),
+        username = "john.doe",
+        password = "p@$Sw0rd",
         clientID = "1234-3213-3123",
         clientSecret = "sGUl4x",
         scope = listOf("0-0-0-0-0", clientID))
