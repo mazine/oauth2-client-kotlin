@@ -131,14 +131,14 @@ internal class TokenRequest(val uri: URI, val clientID: String, val clientSecret
                 "username" to username,
                 "password" to password,
                 "code" to code,
+                "refresh_token" to refreshToken,
                 "scope" to scope?.joinToString(" "),
                 "redirect_uri" to redirectURI?.toASCIIString(),
                 "access_type" to if (requestRefreshToken) {
                     AccessType.OFFLINE
                 } else {
                     AccessType.ONLINE
-                }.value,
-                "refresh_token" to refreshToken
+                }.value
         )
 
 }
