@@ -11,7 +11,7 @@ To perform operations authorized by the OAuth 2.0 server, your application requi
 are several ways (so called flows) for your applications to get it. The flow you will use depends on the
 environment your application runs in.
 
-
+<!--
 ### Maven and Gradle
 
 **<span style="color:red">TBD: NOT PUBLISHED YET TO MAVEN</span>**
@@ -44,6 +44,7 @@ dependencies {
     testCompile 'org.jetbrains.hub:oauth2-client:$version'
 }
 ```
+-->
 
 ## Usage
 
