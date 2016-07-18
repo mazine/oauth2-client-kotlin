@@ -1,4 +1,4 @@
-group 'jetbrains.hub'
+group 'com.github.mazine'
 version '1.0'
 
 buildscript {
