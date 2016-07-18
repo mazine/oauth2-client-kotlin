@@ -11,40 +11,17 @@ To perform operations authorized by the OAuth 2.0 server, your application requi
 are several ways (so called flows) for your applications to get it. The flow you will use depends on the
 environment your application runs in.
 
-<!--
-### Maven and Gradle
+### Gradle
 
-**<span style="color:red">TBD: NOT PUBLISHED YET TO MAVEN</span>**
-
-You can download it from the [JetBrains Artifactory](http://repository.jetbrains.com).
-
-To use it in Maven insert the following in your pom.xml file:
-``` xml
- <dependency>
-    <groupId>org.jetbrains.hub</groupId>
-    <artifactId>oauth2-client</artifactId>
-    <version>$version</version>
- </dependency>
-
- <repositories>
-    <repository>
-      <id>jebrains-all</id>
-      <url>http://repository.jetbrains.com/all</url>
-    </repository>
-  </repositories>
-```
-
-For Gradle:
 ``` groovy
 repositories {
-    maven { url "http://repository.jetbrains.com/all" }
+    jcenter()
+    maven { url "https://jitpack.io" }
 }
-
 dependencies {
-    testCompile 'org.jetbrains.hub:oauth2-client:$version'
+     compile 'com.github.mazine:oauth2-client-kotlin:1.0'
 }
 ```
--->
 
 ## Usage
 
