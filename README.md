@@ -11,16 +11,35 @@ To perform operations authorized by the OAuth 2.0 server, your application requi
 are several ways (so called flows) for your applications to get it. The flow you will use depends on the
 environment your application runs in.
 
-### Gradle
+### Gradle and Maven
+[![Release](https://jitpack.io/v/User/Repo.svg)](https://jitpack.io/#mazine/oauth2-client-kotlin)
 
+####Gradle
 ``` groovy
 repositories {
     jcenter()
     maven { url "https://jitpack.io" }
 }
 dependencies {
-     compile 'com.github.mazine:oauth2-client-kotlin:1.0.1'
+     compile 'com.github.mazine:oauth2-client-kotlin:$version'
 }
+```
+
+####Maven
+``` xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+```
+<dependency>
+    <groupId>com.github.mazine</groupId>
+    <artifactId>oauth2-client-kotlin</artifactId>
+    <version>$version</version>
+</dependency>
 ```
 
 ## Usage
