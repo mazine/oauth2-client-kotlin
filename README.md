@@ -19,7 +19,7 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 dependencies {
-     compile 'com.github.mazine:oauth2-client-kotlin:1.0'
+     compile 'com.github.mazine:oauth2-client-kotlin:1.0.1'
 }
 ```
 
