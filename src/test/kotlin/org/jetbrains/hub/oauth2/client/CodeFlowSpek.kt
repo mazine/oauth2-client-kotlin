@@ -1,5 +1,6 @@
 package org.jetbrains.hub.oauth2.client
 
+import org.jetbrains.hub.oauth2.client.jersey.oauth2Client
 import org.jetbrains.hub.oauth2.client.loader.ClientAuthTransport
 import org.jetbrains.spek.api.Spek
 import java.net.URI
@@ -41,6 +42,22 @@ class CodeFlowSpek : Spek({
                             "&state=$state" +
                             "&access_type=offline",
                     authClient.codeFlowURI(
+                            authEndpoint,
+                            clientID, redirectURI,
+                            scope, state, requestRefreshToken = true).toASCIIString()
+            )
+        }
+
+        it("should form correct for URI offline access token request with JerseyClient") {
+            assertEquals(
+                    "https://hub.jetbrains.com/api/rest/oauth2/auth" +
+                            "?response_type=code" +
+                            "&client_id=$clientID" +
+                            "&redirect_uri=https%3A%2F%2Flocalhost%3A8080" +
+                            "&scope=$scopeElement+$clientID" +
+                            "&state=$state" +
+                            "&access_type=offline",
+                    oauth2Client().codeFlowURI(
                             authEndpoint,
                             clientID, redirectURI,
                             scope, state, requestRefreshToken = true).toASCIIString()

@@ -11,6 +11,7 @@ import java.util.*
 import javax.ws.rs.client.Entity
 import javax.ws.rs.core.Form
 import javax.ws.rs.core.Response
+import javax.ws.rs.core.UriBuilder
 
 class JerseyClientTokenLoader(val jerseyClient: JerseyClient = JerseyClientBuilder.createClient()) : TokenLoader {
     val log = LoggerFactory.getLogger(JerseyClientTokenLoader::class.java)
@@ -53,7 +54,11 @@ class JerseyClientTokenLoader(val jerseyClient: JerseyClient = JerseyClientBuild
     }
 
     override fun authURI(uri: URI, queryParameters: Map<String, String>): URI {
-        throw UnsupportedOperationException()
+        return UriBuilder.fromUri(uri).apply {
+            queryParameters.keys.forEach {
+                queryParam(it, "{$it}")
+            }
+        }.buildFromMap(queryParameters)
     }
 }
 
