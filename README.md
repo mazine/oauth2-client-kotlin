@@ -12,7 +12,7 @@ are several ways (so called flows) for your applications to get it. The flow you
 environment your application runs in.
 
 ### Gradle and Maven
-[![Release](https://jitpack.io/v/User/Repo.svg)](https://jitpack.io/#mazine/oauth2-client-kotlin)
+[![Release](https://jitpack.io/v/mazine/oauth2-client-kotlin.svg)](https://jitpack.io/#mazine/oauth2-client-kotlin)
 
 ####Gradle
 ``` groovy
