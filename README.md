@@ -14,7 +14,7 @@ environment your application runs in.
 ### Gradle and Maven
 [![Release](https://jitpack.io/v/mazine/oauth2-client-kotlin.svg)](https://jitpack.io/#mazine/oauth2-client-kotlin)
 
-####Gradle
+#### Gradle
 ``` groovy
 repositories {
     jcenter()
@@ -25,7 +25,7 @@ dependencies {
 }
 ```
 
-####Maven
+#### Maven
 ``` xml
 <repositories>
     <repository>
